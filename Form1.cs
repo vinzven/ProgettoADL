@@ -262,26 +262,43 @@ namespace ProgettoGUI
 
         private void button1_Click(object sender, EventArgs e)
         {
+            object? comboBox1Item = comboBox1.SelectedItem;
+            object? comboBox2Item = comboBox2.SelectedItem;
 
-            //da aggiungere controllo se null per campi
-            string nazioneMittente = comboBox1.SelectedItem.ToString();
-            string nazioneDestinatario = comboBox2.SelectedItem.ToString();
-
-            string cittaMittente = comboBoxCittaMittente.SelectedItem.ToString();
-            string cittaDestinatario = comboBoxCittaDestinatario.SelectedItem.ToString();
+            object? comboBoxCittaMittenteItem = comboBoxCittaMittente.SelectedItem;
+            object? comboBoxCittaDestinatarioItem = comboBoxCittaDestinatario.SelectedItem;
 
             string capMittente = comboBoxCAPMittente.Text;
             string capDestinatario = comboBoxCAPDestinatario.Text;
 
-            string peso = textBox1.Text;
-            string lunghezza = textBox2.Text;
-            string larghezza = textBox3.Text;
-            string altezza = textBox4.Text;
 
-            Console.WriteLine();
+            if (comboBox1Item != null && comboBox2Item != null && comboBoxCittaMittenteItem != null && 
+                comboBoxCittaDestinatarioItem != null && 
+                !string.IsNullOrWhiteSpace(capMittente) && !string.IsNullOrWhiteSpace(capDestinatario) )
+            {
+                string nazioneMittente = comboBox1Item.ToString();
+                string nazioneDestinatario = comboBox2Item.ToString();
 
-            // Supponiamo che queste variabili contengano i tuoi dati
-            string riepilogo = $@"
+                string cittaMittente = comboBoxCittaMittenteItem.ToString();
+                string cittaDestinatario = comboBoxCittaDestinatarioItem.ToString();
+
+               
+
+                string peso = textBox1.Text;
+                string lunghezza = textBox2.Text;
+                string larghezza = textBox3.Text;
+                string altezza = textBox4.Text;
+
+                float pesoNum, lunghezzaNum, larghezzaNum, altezzaNum;
+                if (float.TryParse(peso, out pesoNum) && float.TryParse(lunghezza, out lunghezzaNum) &&
+                    float.TryParse(larghezza, out larghezzaNum) && float.TryParse(altezza, out altezzaNum)){
+
+
+
+
+
+                    // Supponiamo che queste variabili contengano i tuoi dati
+                    string riepilogo = $@"
 --------------------------------------------------
           Are you sure?
 --------------------------------------------------
@@ -301,9 +318,19 @@ Package info:
 --------------------------------------------------
 ";
 
-            // Stampa nell'output di debug o in una finestra
-            Console.WriteLine(riepilogo);
-            MessageBox.Show(riepilogo);
+                    // Stampa nell'output di debug o in una finestra
+                    Console.WriteLine(riepilogo);
+                    MessageBox.Show(riepilogo, "Recap");
+                }
+                else
+                {
+                    MessageBox.Show("The package dimensions must be numeric values!","Fields Error");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please fill all fields!", "Fields Error");
+            }
         }
 
         private void comboBoxCAPMittente_SelectedIndexChanged(object sender, EventArgs e)
