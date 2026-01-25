@@ -308,7 +308,7 @@ namespace ProgettoGUI
                     int valoreCapMittente = comboBoxCAPMittente.FindStringExact(capMittente);
                     int valoreCapDestinatario = comboBoxCAPDestinatario.FindStringExact(capDestinatario);
 
-                    if (valoreNazioneMittente != -1 && valoreNazioneDestinatario != -1 && valoreCittaDestinatario != -1 && valoreCapMittente != 1 && valoreCapDestinatario != -1)
+                    if (valoreNazioneMittente != -1 && valoreNazioneDestinatario != -1 && valoreCittaMittente != -1 && valoreCittaDestinatario != -1 && valoreCapMittente != 1 && valoreCapDestinatario != -1)
                     {
 
 
