@@ -272,9 +272,9 @@ namespace ProgettoGUI
             string capDestinatario = comboBoxCAPDestinatario.Text;
 
 
-            if (comboBox1Item != null && comboBox2Item != null && comboBoxCittaMittenteItem != null && 
-                comboBoxCittaDestinatarioItem != null && 
-                !string.IsNullOrWhiteSpace(capMittente) && !string.IsNullOrWhiteSpace(capDestinatario) )
+            if (comboBox1Item != null && comboBox2Item != null && comboBoxCittaMittenteItem != null &&
+                comboBoxCittaDestinatarioItem != null &&
+                !string.IsNullOrWhiteSpace(capMittente) && !string.IsNullOrWhiteSpace(capDestinatario))
             {
                 string nazioneMittente = comboBox1Item.ToString();
                 string nazioneDestinatario = comboBox2Item.ToString();
@@ -282,23 +282,42 @@ namespace ProgettoGUI
                 string cittaMittente = comboBoxCittaMittenteItem.ToString();
                 string cittaDestinatario = comboBoxCittaDestinatarioItem.ToString();
 
-               
+
 
                 string peso = textBox1.Text;
                 string lunghezza = textBox2.Text;
                 string larghezza = textBox3.Text;
                 string altezza = textBox4.Text;
 
-                float pesoNum, lunghezzaNum, larghezzaNum, altezzaNum;
-                if (float.TryParse(peso, out pesoNum) && float.TryParse(lunghezza, out lunghezzaNum) &&
-                    float.TryParse(larghezza, out larghezzaNum) && float.TryParse(altezza, out altezzaNum)){
+
+
+                float pesoNum;
+
+                int lunghezzaNum, larghezzaNum, altezzaNum;
+
+                if (float.TryParse(peso, out pesoNum) && int.TryParse(lunghezza, out lunghezzaNum) &&
+                    int.TryParse(larghezza, out larghezzaNum) && int.TryParse(altezza, out altezzaNum))
+                {
+
+
+                    int valoreNazioneMittente = comboBox1.FindStringExact(nazioneMittente);
+                    int valoreNazioneDestinatario = comboBox2.FindStringExact(nazioneDestinatario);
+
+                    int valoreCittaMittente = comboBoxCittaMittente.FindStringExact(cittaMittente);
+                    int valoreCittaDestinatario = comboBoxCittaDestinatario.FindStringExact(cittaDestinatario);
+                    int valoreCapMittente = comboBoxCAPMittente.FindStringExact(capMittente);
+                    int valoreCapDestinatario = comboBoxCAPDestinatario.FindStringExact(capDestinatario);
+
+                    if (valoreNazioneMittente != -1 && valoreNazioneDestinatario != -1 && valoreCittaDestinatario != -1 && valoreCapMittente != 1 && valoreCapDestinatario != -1)
+                    {
 
 
 
 
 
-                    // Supponiamo che queste variabili contengano i tuoi dati
-                    string riepilogo = $@"
+
+                        // Supponiamo che queste variabili contengano i tuoi dati
+                        string riepilogo = $@"
 --------------------------------------------------
           Are you sure?
 --------------------------------------------------
@@ -318,20 +337,35 @@ Package info:
 --------------------------------------------------
 ";
 
-                    // Stampa nell'output di debug o in una finestra
-                    Console.WriteLine(riepilogo);
-                    MessageBox.Show(riepilogo, "Recap");
+                        // Stampa nell'output di debug o in una finestra
+                        Console.WriteLine(riepilogo);
+                        MessageBox.Show(riepilogo, "Recap");
+                    }
+                    else {
+
+                        MessageBox.Show("the entered values are not correct!", "Fields Error");
+
+                    }
+
+
+
+                    }
+
+
+                    
+                    else
+                    {
+                        MessageBox.Show("The package dimensions must be numeric values!", "Fields Error");
+                    }
                 }
-                else
+                   else
                 {
-                    MessageBox.Show("The package dimensions must be numeric values!","Fields Error");
+                    MessageBox.Show("Please fill all fields!", "Fields Error");
+
+
                 }
             }
-            else
-            {
-                MessageBox.Show("Please fill all fields!", "Fields Error");
-            }
-        }
+        
 
         private void comboBoxCAPMittente_SelectedIndexChanged(object sender, EventArgs e)
         {
