@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -8,8 +9,33 @@ namespace ProgettoGUI
     public partial class Form1 : Form
     {
         public Form1()
+
+
         {
             InitializeComponent();
+
+            AbilitaFixComboBox(this);
+        }
+
+        private void AbilitaFixComboBox(Control parent)
+        {
+            foreach (Control c in parent.Controls)
+            {
+                if (c is ComboBox combo)
+                {
+                    combo.KeyDown += (s, e) =>
+                    {
+                        if (combo.DroppedDown &&
+                            (char.IsLetterOrDigit((char)e.KeyCode) || e.KeyCode == Keys.Back))
+                        {
+                            combo.DroppedDown = false;
+                        }
+                    };
+                }
+
+                if (c.HasChildren)
+                    AbilitaFixComboBox(c);
+            }
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -37,10 +63,10 @@ namespace ProgettoGUI
 
         }
 
-        private async void comboBox1_SelectedIndexChangedAsync(object sender, EventArgs e)
+        private async void comboBoxNazioneMittente_SelectedIndexChangedAsync(object sender, EventArgs e)
         {
             //selezione nazione con controllo se object null
-            object selezione = comboBox1.SelectedItem;
+            object selezione = comboBoxNazioneMittente.SelectedItem;
 
             if (selezione != null)
             {
@@ -93,7 +119,7 @@ namespace ProgettoGUI
             {
                 while (true)
                 {
-                    string url = $"http://api.geonames.org/searchJSON?country={codiceISO}&featureClass=P&maxRows={maxRows}&startRow={startRow}&orderby=population&username={user}";
+                    string url = $"http://api.geonames.org/searchJSON?country={codiceISO}&featureClass=P&maxRows={maxRows}&startRow={startRow}&orderby=population&lang=it&username={user}";
 
                     string json = await client.GetStringAsync(url);
                     var risultato = JsonSerializer.Deserialize<GeonamesSearchResponse>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
@@ -135,16 +161,14 @@ namespace ProgettoGUI
 
         }
 
-        private async void comboBox3_SelectedIndexChanged(object sender, EventArgs e)
+        private async void comboBoxCittaDestinatario_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (comboBoxCittaDestinatario.SelectedItem != null)
             {
-                string cittaScelta = comboBoxCittaDestinatario.SelectedItem.ToString();
-
-                // Recuperiamo l'ISO dalla prima ComboBox (es: "Italia - IT")
-                if (comboBox2.SelectedItem.ToString() != "")
+                if (comboBoxNazioneDestinatario.SelectedItem != null)
                 {
-                    string iso = comboBox2.SelectedItem.ToString().Split('-')[1].Trim();
+                    string cittaScelta = comboBoxCittaDestinatario.SelectedItem.ToString();
+                    string iso = comboBoxNazioneDestinatario.SelectedItem.ToString().Split('-')[1].Trim();
 
                     await CaricaCAPCitta(iso, cittaScelta, comboBoxCAPDestinatario);
                 }
@@ -152,10 +176,10 @@ namespace ProgettoGUI
 
         }
 
-        private async void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        private async void comboBoxNazioneDestinatario_SelectedIndexChanged(object sender, EventArgs e)
         {
             //selezione nazione con controllo se object null
-            object selezione = comboBox2.SelectedItem;
+            object selezione = comboBoxNazioneDestinatario.SelectedItem;
 
             if (selezione != null)
             {
@@ -185,16 +209,16 @@ namespace ProgettoGUI
 
         }
 
-        private async void comboBoxCitta_SelectedIndexChanged(object sender, EventArgs e)
+        private async void comboBoxCittaMittente_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (comboBoxCittaMittente.SelectedItem != null)
             {
-                if (comboBox1.SelectedItem != null)
+                if (comboBoxNazioneMittente.SelectedItem != null)
                 {
                     string cittaScelta = comboBoxCittaMittente.SelectedItem.ToString();
 
                     // Recuperiamo l'ISO dalla prima ComboBox (es: "Italia - IT")
-                    string iso = comboBox1.SelectedItem.ToString().Split('-')[1].Trim();
+                    string iso = comboBoxNazioneMittente.SelectedItem.ToString().Split('-')[1].Trim();
 
                     await CaricaCAPCitta(iso, cittaScelta, comboBoxCAPMittente);
                 }
@@ -219,7 +243,7 @@ namespace ProgettoGUI
                 string json = await client.GetStringAsync(url);
                 var risultato = JsonSerializer.Deserialize<PostalCodeResponse>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-                comboBoxCAPMittente.Items.Clear();
+                comboBoxCAP.Items.Clear();
 
                 if (risultato?.PostalCodes != null && risultato.PostalCodes.Count > 0)
                 {
@@ -262,8 +286,8 @@ namespace ProgettoGUI
 
         private void button1_Click(object sender, EventArgs e)
         {
-            object? comboBox1Item = comboBox1.SelectedItem;
-            object? comboBox2Item = comboBox2.SelectedItem;
+            object? comboBox1Item = comboBoxNazioneMittente.SelectedItem;
+            object? comboBox2Item = comboBoxNazioneDestinatario.SelectedItem;
 
             object? comboBoxCittaMittenteItem = comboBoxCittaMittente.SelectedItem;
             object? comboBoxCittaDestinatarioItem = comboBoxCittaDestinatario.SelectedItem;
@@ -300,8 +324,8 @@ namespace ProgettoGUI
                 {
 
 
-                    int valoreNazioneMittente = comboBox1.FindStringExact(nazioneMittente);
-                    int valoreNazioneDestinatario = comboBox2.FindStringExact(nazioneDestinatario);
+                    int valoreNazioneMittente = comboBoxNazioneMittente.FindStringExact(nazioneMittente);
+                    int valoreNazioneDestinatario = comboBoxNazioneDestinatario.FindStringExact(nazioneDestinatario);
 
                     int valoreCittaMittente = comboBoxCittaMittente.FindStringExact(cittaMittente);
                     int valoreCittaDestinatario = comboBoxCittaDestinatario.FindStringExact(cittaDestinatario);
@@ -310,10 +334,6 @@ namespace ProgettoGUI
 
                     if (valoreNazioneMittente != -1 && valoreNazioneDestinatario != -1 && valoreCittaMittente != -1 && valoreCittaDestinatario != -1 && valoreCapMittente != 1 && valoreCapDestinatario != -1)
                     {
-
-
-
-
 
 
                         // Supponiamo che queste variabili contengano i tuoi dati
@@ -339,38 +359,136 @@ Package info:
 
                         // Stampa nell'output di debug o in una finestra
                         Console.WriteLine(riepilogo);
-                        MessageBox.Show(riepilogo, "Recap");
+                        DialogResult risposta = MessageBox.Show(riepilogo, "Recap", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                        if (risposta == DialogResult.Yes)
+                        {
+                            var datiJson = new
+                            {
+                                sender = new { country = nazioneMittente, city = cittaMittente, ZIP = capMittente },
+                                receiver = new { country = nazioneDestinatario, city = cittaDestinatario, ZIP = capDestinatario },
+                                package = new
+                                {
+                                    weight = peso,
+                                    dimensions = new { l = lunghezza, w = larghezza, h = altezza }
+                                }
+                            };
+
+                            string jsonString = JsonSerializer.Serialize(datiJson);
+
+                            string cartellaScript = @"C:\Users\antonio\source\repos\ProgettoADL\Module_Phyton";
+                            string nomeFile = "Module_Phyton.py";
+                            string percorsoCompleto = System.IO.Path.Combine(cartellaScript, nomeFile);
+
+                            ProcessStartInfo start = new ProcessStartInfo();
+
+                            start.FileName = "python";
+                            start.Arguments = $"\"{percorsoCompleto}\"";
+                            start.UseShellExecute = false;
+                            start.RedirectStandardInput = true;
+                            start.RedirectStandardOutput = true;
+                            start.CreateNoWindow = true;
+
+
+
+                            using (Process p = Process.Start(start))
+                            {
+                                // 1. Scrivi l'input (JSON)
+                                p.StandardInput.WriteLine(jsonString);
+                                p.StandardInput.Close(); // Finito di scrivere
+
+                                // 2. Leggi l'output
+                                string risultato = p.StandardOutput.ReadToEnd();
+                                p.WaitForExit(); // Aspetta che finisca
+
+                                MessageBox.Show(risultato);
+                            }
+
+                        }
+
                     }
-                    else {
+                    else
+                    {
 
                         MessageBox.Show("the entered values are not correct!", "Fields Error");
 
                     }
 
-
-
-                    }
-
-
-                    
-                    else
-                    {
-                        MessageBox.Show("The package dimensions must be numeric values!", "Fields Error");
-                    }
                 }
-                   else
+
+
+                else
                 {
-                    MessageBox.Show("Please fill all fields!", "Fields Error");
-
-
+                    MessageBox.Show("The package dimensions must be numeric values!", "Fields Error");
                 }
             }
-        
+            else
+            {
+                MessageBox.Show("Please fill all fields!", "Fields Error");
+
+
+            }
+        }
+
+
+
+
+
 
         private void comboBoxCAPMittente_SelectedIndexChanged(object sender, EventArgs e)
         {
 
         }
+
+        private void panel2_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            LanciaPythonInModalitaAcquisto("https://www.packlink.it/order/IT/95031/IT/95041/service?origin-city=Adrano&destination-city=Caltagirone&p=2,20,33,22");
+        }
+
+        // checkout prova
+
+        private void LanciaPythonInModalitaAcquisto(string url)
+        {
+            try
+            {
+                ProcessStartInfo psi = new ProcessStartInfo();
+
+                // Percorso del tuo interprete Python (o solo "python" se è nelle variabili d'ambiente)
+                psi.FileName = "python";
+
+                // Percorso del file .py
+                string scriptPath = @"C:\Users\antonio\source\repos\ProgettoADL\Module_Phyton\Module_Phyton.py";
+
+                // COSTRUZIONE COMANDO
+                // --url e --corriere sono gli argomenti che abbiamo definito in Python con argparse
+                // Usiamo le virgolette (\") per gestire spazi nei nomi o caratteri strani nell'URL
+                psi.Arguments = $"\"{scriptPath}\" --url \"{url}\"";
+
+                // IMPOSTAZIONI VISIBILITÀ
+                psi.UseShellExecute = false;
+
+                // CreateNoWindow = false -> FONDAMENTALE: Vogliamo vedere la console nera 
+                // così se c'è un errore lo leggi. Se vuoi nasconderla metti true, 
+                // ma il browser si aprirà comunque perché headless=False in Python.
+                psi.CreateNoWindow = false;
+
+                Process.Start(psi);
+            }
+            catch (Exception ex)
+            {
+                // Gestisci errore (es. Python non installato)
+                System.Windows.Forms.MessageBox.Show("Errore avvio Python: " + ex.Message);
+            }
+        }
+
+
+
+
     }
 
 }
