@@ -376,10 +376,11 @@ Package info:
 
                             string jsonString = JsonSerializer.Serialize(datiJson);
 
-                            string cartellaScript = @"C:\Users\antonio\source\repos\ProgettoADL\Module_Phyton";
-                            string nomeFile = "Module_Phyton.py";
-                            string percorsoCompleto = System.IO.Path.Combine(cartellaScript, nomeFile);
-
+                            string percorsoCompleto = Path.Combine(
+                             AppDomain.CurrentDomain.BaseDirectory,
+                            "Module_Phyton",
+                            "Module_Phyton.py"
+                                                );
                             ProcessStartInfo start = new ProcessStartInfo();
 
                             start.FileName = "python";
@@ -401,7 +402,21 @@ Package info:
                                 string risultato = p.StandardOutput.ReadToEnd();
                                 p.WaitForExit(); // Aspetta che finisca
 
-                                MessageBox.Show(risultato);
+
+                                // 3. GESTISCI IL RISULTATO
+                                if (!string.IsNullOrEmpty(risultato))
+                                {
+                                    // Se il C++ ha mandato un semplice testo, lo mostri:
+                                    MessageBox.Show("Risposta dal Modulo C++:\n" + risultato, "Elaborazione Completata");
+
+                                    // OPZIONALE: Se il C++ manda un JSON di ritorno, puoi deserializzarlo qui:
+                                    //var rispostaDati = JsonSerializer.Deserialize<TuoModello>(risultato);
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Il modulo C++ non ha restituito dati.", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                }
+
                             }
 
                         }
