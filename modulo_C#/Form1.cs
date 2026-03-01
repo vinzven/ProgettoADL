@@ -70,9 +70,19 @@ namespace ProgettoGUI
 
             if (selezione != null)
             {
+
+                comboBoxCittaMittente.Items.Clear();
+                comboBoxCittaMittente.Text = "Caricamento in corso...";
+
+                comboBoxCAPMittente.Items.Clear();
+                comboBoxCAPMittente.Text = "";
+
+                button1.Enabled = false;
+
                 string nazione = selezione.ToString().Split('-')[1].Trim();
                 Console.WriteLine(nazione);
                 await CaricaTutteLeCittaDellaNazione(nazione, comboBoxCittaMittente);
+                button1.Enabled = true;
 
             }
 
@@ -166,11 +176,20 @@ namespace ProgettoGUI
             if (comboBoxCittaDestinatario.SelectedItem != null)
             {
                 if (comboBoxNazioneDestinatario.SelectedItem != null)
+
                 {
+
+                    comboBoxCAPDestinatario.Items.Clear();
+                    comboBoxCAPDestinatario.Text = "";
+
+                    button1.Enabled = false;
+
                     string cittaScelta = comboBoxCittaDestinatario.SelectedItem.ToString();
                     string iso = comboBoxNazioneDestinatario.SelectedItem.ToString().Split('-')[1].Trim();
 
                     await CaricaCAPCitta(iso, cittaScelta, comboBoxCAPDestinatario);
+
+                    button1.Enabled = true;
                 }
             }
 
@@ -183,9 +202,20 @@ namespace ProgettoGUI
 
             if (selezione != null)
             {
+
+                comboBoxCittaDestinatario.Items.Clear();
+                comboBoxCittaDestinatario.Text = "Caricamento in corso...";
+
+                comboBoxCAPDestinatario.Items.Clear();
+                comboBoxCAPDestinatario.Text = "";
+
+                button1.Enabled = false;
+
                 string nazione = selezione.ToString().Split('-')[1].Trim();
                 Console.WriteLine(nazione);
                 await CaricaTutteLeCittaDellaNazione(nazione, comboBoxCittaDestinatario);
+
+                button1.Enabled = true;
             }
         }
 
@@ -215,12 +245,20 @@ namespace ProgettoGUI
             {
                 if (comboBoxNazioneMittente.SelectedItem != null)
                 {
+
+                    comboBoxCAPMittente.Items.Clear();
+                    comboBoxCAPMittente.Text = "";
+
+                    button1.Enabled = false;
+
                     string cittaScelta = comboBoxCittaMittente.SelectedItem.ToString();
 
                     // Recuperiamo l'ISO dalla prima ComboBox (es: "Italia - IT")
                     string iso = comboBoxNazioneMittente.SelectedItem.ToString().Split('-')[1].Trim();
 
                     await CaricaCAPCitta(iso, cittaScelta, comboBoxCAPMittente);
+
+                    button1.Enabled = true;
                 }
             }
         }
@@ -267,6 +305,7 @@ namespace ProgettoGUI
                 MessageBox.Show("Errore durante il recupero del CAP: " + ex.Message);
             }
         }
+
         public class PostalCodeResponse
         {
             [JsonPropertyName("postalCodes")]
@@ -278,6 +317,8 @@ namespace ProgettoGUI
             [JsonPropertyName("postalCode")]
             public string CAP { get; set; }
         }
+
+
 
         private void panel3_Paint(object sender, PaintEventArgs e)
         {
@@ -296,23 +337,23 @@ namespace ProgettoGUI
             string capDestinatario = comboBoxCAPDestinatario.Text;
 
 
+
+            string peso = textBox1.Text;
+            string lunghezza = textBox2.Text;
+            string larghezza = textBox3.Text;
+            string altezza = textBox4.Text;
+
+
             if (comboBox1Item != null && comboBox2Item != null && comboBoxCittaMittenteItem != null &&
                 comboBoxCittaDestinatarioItem != null &&
-                !string.IsNullOrWhiteSpace(capMittente) && !string.IsNullOrWhiteSpace(capDestinatario))
+                !string.IsNullOrWhiteSpace(capMittente) && !string.IsNullOrWhiteSpace(capDestinatario) && !string.IsNullOrWhiteSpace(peso) && !string.IsNullOrWhiteSpace(lunghezza) &&
+                !string.IsNullOrWhiteSpace(larghezza) && !string.IsNullOrWhiteSpace(altezza))
             {
                 string nazioneMittente = comboBox1Item.ToString();
                 string nazioneDestinatario = comboBox2Item.ToString();
 
                 string cittaMittente = comboBoxCittaMittenteItem.ToString();
                 string cittaDestinatario = comboBoxCittaDestinatarioItem.ToString();
-
-
-
-                string peso = textBox1.Text;
-                string lunghezza = textBox2.Text;
-                string larghezza = textBox3.Text;
-                string altezza = textBox4.Text;
-
 
 
                 float pesoNum;
@@ -332,9 +373,10 @@ namespace ProgettoGUI
                     int valoreCapMittente = comboBoxCAPMittente.FindStringExact(capMittente);
                     int valoreCapDestinatario = comboBoxCAPDestinatario.FindStringExact(capDestinatario);
 
-                    if (valoreNazioneMittente != -1 && valoreNazioneDestinatario != -1 && valoreCittaMittente != -1 && valoreCittaDestinatario != -1 && valoreCapMittente != 1 && valoreCapDestinatario != -1)
+                    if (valoreNazioneMittente != -1 && valoreNazioneDestinatario != -1  && valoreCittaMittente != -1  && valoreCittaDestinatario != -1 && valoreCapMittente != 1 && valoreCapDestinatario != -1)
                     {
 
+       
 
                         // Supponiamo che queste variabili contengano i tuoi dati
                         string riepilogo = $@"
@@ -363,6 +405,12 @@ Package info:
 
                         if (risposta == DialogResult.Yes)
                         {
+
+                            if(cittaMittente==cittaDestinatario && capMittente== capDestinatario && nazioneMittente== nazioneDestinatario) { 
+                                MessageBox.Show("Il mittente e il destinatario non possono essere uguali!", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+
                             var datiJson = new
                             {
                                 sender = new { country = nazioneMittente, city = cittaMittente, ZIP = capMittente },
@@ -414,7 +462,7 @@ Package info:
                                 }
                                 else
                                 {
-                                    MessageBox.Show("Il modulo C++ non ha restituito dati.", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    MessageBox.Show("Il modulo C++ non ha restituito dati!", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 }
 
                             }
@@ -425,7 +473,7 @@ Package info:
                     else
                     {
 
-                        MessageBox.Show("the entered values are not correct!", "Fields Error");
+                        MessageBox.Show("i valori inseriti non sono coretti!", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                     }
 
@@ -434,12 +482,12 @@ Package info:
 
                 else
                 {
-                    MessageBox.Show("The package dimensions must be numeric values!", "Fields Error");
+                    MessageBox.Show("le dimensioni del pacco sono errate! I valori devono essere interi positivi", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             else
             {
-                MessageBox.Show("Please fill all fields!", "Fields Error");
+                MessageBox.Show("Si prega di compilare tutti i campi", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
 
             }

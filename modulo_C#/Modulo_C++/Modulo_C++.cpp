@@ -71,7 +71,7 @@ int main() {
 
             // 4. COSTRUZIONE DEL JSON FINALE
             json risultato_finale;
-            risultato_finale["ordinate_per_prezzo"] = offerte_prezzo;
+            risultato_finale["ordinate_per_prezzoo"] = offerte_prezzo;
             risultato_finale["ordinate_per_tempo"] = offerte_tempo;
             risultato_finale["totale_offerte_analizzatee"] = lista_originale.size();
 
