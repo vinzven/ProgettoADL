@@ -72,7 +72,7 @@ namespace ProgettoGUI
             {
 
                 comboBoxCittaMittente.Items.Clear();
-                comboBoxCittaMittente.Text = "Caricamento in corso...";
+                comboBoxCittaMittente.Text = "Caricamento in corso";
 
                 comboBoxCAPMittente.Items.Clear();
                 comboBoxCAPMittente.Text = "";
