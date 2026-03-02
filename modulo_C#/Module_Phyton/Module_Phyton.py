@@ -1,5 +1,6 @@
 import sys
 import json
+from concurrent.futures import ThreadPoolExecutor
 from playwright.sync_api import sync_playwright
 from scrapers.packlink import cerca_packlink
 from scrapers.spediscoIo import cerca_SpediscoIo
@@ -8,10 +9,25 @@ from scrapers.spedire import cercaSpedire
 import os
 import subprocess
 
-# MAIN
+# 1. Nuova funzione helper per ogni thread
+def esegui_task(nome_scraper, funzione_scraper, dati):
+    print(f"Avvio {nome_scraper}...")
+    try:
+        with sync_playwright() as p:
+            # Ogni thread apre il suo browser indipendente
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            
+            risultato = funzione_scraper(page, dati)
+            
+            browser.close()
+            return risultato
+    except Exception as e:
+        print(f"Errore in {nome_scraper}: {e}")
+        return []
 
 def main():
-       
+    num_thread=3
     try:
         input_data = sys.stdin.read()
         if not input_data: return
@@ -19,55 +35,42 @@ def main():
         
         lista_totale = []
 
-        with sync_playwright() as p:
-            # APRIAMO IL BROWSER IN MODO VISIBILE PER ORA
-            browser = p.chromium.launch(headless=False)
-            page = browser.new_page()
+        # Utilizzo dei Thread per eseguire gli scraper contemporaneamente
+        
+        with ThreadPoolExecutor(num_thread) as executor:
+            # Inviamo i lavori ai thread
+            future_pack = executor.submit(esegui_task, "Packlink", cerca_packlink, dati_csharp)
+            future_io = executor.submit(esegui_task, "SpediscoIo", cerca_SpediscoIo, dati_csharp)
+            future_pacco = executor.submit(esegui_task, "PaccoFacile", cercaPaccoFacile, dati_csharp)
 
-            # Eseguiamo i siti in sequenza
-            offerte_pack = cerca_packlink(page, dati_csharp)
-            offerte_ioSpedisco = cerca_SpediscoIo(page,dati_csharp)
-            offerte_paccoFacile= cercaPaccoFacile(page,dati_csharp)
-            #offerte_spedire = cercaSpedire(page,dati_csharp)
-            lista_totale.extend(offerte_pack)
-            lista_totale.extend(offerte_ioSpedisco)
-            lista_totale.extend(offerte_paccoFacile)
-            #lista_totale.extend(offerte_spedire)
-            
-            # Opzionale: Puliamo i cookie o ricarichiamo pagina tra un sito e l'altro
-            page.goto("about:blank") 
+            # Recuperiamo i risultati (il programma aspetta qui finché tutti non hanno finito)
+            lista_totale.extend(future_pack.result())
+            lista_totale.extend(future_io.result())
+            lista_totale.extend(future_pacco.result())
 
-            browser.close()
-            
-            
-            json_finale = json.dumps(lista_totale)
-            #dati_finti_da_mandare = json.dumps({"messaggio": "Ciao C++, sono Python e ti mando dei dati!"})
+        # 3. Invio al C++ (resta invariato)
+        json_finale = json.dumps(lista_totale)
 
-# Trovo il percorso dell'eseguibile C++ (basato sulla tua foto)
-            cartella_corrente = os.path.dirname(os.path.abspath(__file__))
-            cartella_base = os.path.dirname(cartella_corrente)
-            percorso_cpp = os.path.join(cartella_base, "Modulo_C++", "x64", "Debug", "Modulo_C++.exe")
+        cartella_corrente = os.path.dirname(os.path.abspath(__file__))
+        cartella_base = os.path.dirname(cartella_corrente)
+        percorso_cpp = os.path.join(cartella_base, "Modulo_C++", "x64", "Debug", "Modulo_C++.exe")
 
-            # Configuro il processo (Esattamente come StartInfo in C#)
-            processo_cpp = subprocess.Popen(
-                [percorso_cpp],
-                stdin=subprocess.PIPE,  # RedirectStandardInput = true
-                stdout=subprocess.PIPE, # RedirectStandardOutput = true
-                text=True,# Per mandare stringhe e non byte
-                encoding='utf-8',
-                creationflags=subprocess.CREATE_NEW_CONSOLE
-            )
+        processo_cpp = subprocess.Popen(
+            [percorso_cpp],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            text=True,
+            encoding='utf-8',
+            creationflags=subprocess.CREATE_NEW_CONSOLE
+        )
 
-            risposta_dal_cpp, errori = processo_cpp.communicate(input=json_finale)
+        risposta_dal_cpp, errori = processo_cpp.communicate(input=json_finale)
 
-            if risposta_dal_cpp:
-                print(f"SCAMBIO COMPLETATO! Python ha questa risposta in mano:\n{risposta_dal_cpp.strip()}")
+        if risposta_dal_cpp:
+            print(f"SCAMBIO COMPLETATO! Python ha questa risposta in mano:\n{risposta_dal_cpp.strip()}")
 
     except Exception as e:
         print(f"Errore nello scambio: {e}")
-
-    except Exception as e:
-        print(json.dumps([{"error": f"Fatal Error Python: {str(e)}"}]))
 
 if __name__ == "__main__":
     main()

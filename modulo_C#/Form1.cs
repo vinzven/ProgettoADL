@@ -88,6 +88,34 @@ namespace ProgettoGUI
 
         }
 
+        //  Finestra che non si può chiudere finché l'elaborazione non è completa (es. caricamento dati o attesa risposta da Python/C++)
+
+        public class LoadingForm : Form
+        {
+            public LoadingForm(string messaggioIniziale)
+            {
+                this.Text = "Caricamento";
+
+                this.ControlBox = false;
+               
+                this.FormBorderStyle = FormBorderStyle.FixedDialog;
+                this.StartPosition = FormStartPosition.CenterScreen;
+                //this.TopMost = true;
+                this.Size = new Size(450, 150);
+
+                Label lblTesto = new Label()
+                {
+                    Text = messaggioIniziale,
+                    Dock = DockStyle.Fill,
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    Font = new Font("Segoe UI", 11, FontStyle.Regular),
+                    Padding = new Padding(10)
+                };
+
+                this.Controls.Add(lblTesto);
+            }
+        }
+
         //chiamata API codice postale
         public class GeonamesSearchResponse
         {
@@ -373,10 +401,10 @@ namespace ProgettoGUI
                     int valoreCapMittente = comboBoxCAPMittente.FindStringExact(capMittente);
                     int valoreCapDestinatario = comboBoxCAPDestinatario.FindStringExact(capDestinatario);
 
-                    if (valoreNazioneMittente != -1 && valoreNazioneDestinatario != -1  && valoreCittaMittente != -1  && valoreCittaDestinatario != -1 && valoreCapMittente != 1 && valoreCapDestinatario != -1)
+                    if (valoreNazioneMittente != -1 && valoreNazioneDestinatario != -1 && valoreCittaMittente != -1 && valoreCittaDestinatario != -1 && valoreCapMittente != 1 && valoreCapDestinatario != -1)
                     {
 
-       
+
 
                         // Supponiamo che queste variabili contengano i tuoi dati
                         string riepilogo = $@"
@@ -406,7 +434,8 @@ Package info:
                         if (risposta == DialogResult.Yes)
                         {
 
-                            if(cittaMittente==cittaDestinatario && capMittente== capDestinatario && nazioneMittente== nazioneDestinatario) { 
+                            if (cittaMittente == cittaDestinatario && capMittente == capDestinatario && nazioneMittente == nazioneDestinatario)
+                            {
                                 MessageBox.Show("Il mittente e il destinatario non possono essere uguali!", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 return;
                             }
@@ -431,12 +460,18 @@ Package info:
                                                 );
                             ProcessStartInfo start = new ProcessStartInfo();
 
+
                             start.FileName = "python";
                             start.Arguments = $"\"{percorsoCompleto}\"";
                             start.UseShellExecute = false;
                             start.RedirectStandardInput = true;
                             start.RedirectStandardOutput = true;
                             start.CreateNoWindow = true;
+
+                            LoadingForm f1 = new LoadingForm("Elaborazione in corso attendere...");
+                            f1.Show();
+                            f1.Refresh();
+                            string risultato = "";
 
 
 
@@ -447,25 +482,31 @@ Package info:
                                 p.StandardInput.Close(); // Finito di scrivere
 
                                 // 2. Leggi l'output
-                                string risultato = p.StandardOutput.ReadToEnd();
+
+                                risultato = p.StandardOutput.ReadToEnd();
+
                                 p.WaitForExit(); // Aspetta che finisca
 
-
-                                // 3. GESTISCI IL RISULTATO
-                                if (!string.IsNullOrEmpty(risultato))
-                                {
-                                    // Se il C++ ha mandato un semplice testo, lo mostri:
-                                    MessageBox.Show("Risposta dal Modulo C++:\n" + risultato, "Elaborazione Completata");
-
-                                    // OPZIONALE: Se il C++ manda un JSON di ritorno, puoi deserializzarlo qui:
-                                    //var rispostaDati = JsonSerializer.Deserialize<TuoModello>(risultato);
-                                }
-                                else
-                                {
-                                    MessageBox.Show("Il modulo C++ non ha restituito dati!", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                }
-
                             }
+
+                            f1.Close();
+
+                            // 3. GESTISCI IL RISULTATO
+                            if (!string.IsNullOrEmpty(risultato))
+                            {
+                                // Se il C++ ha mandato un semplice testo, lo mostri:
+
+                                MessageBox.Show("Risposta dal Modulo C++:\n" + risultato, "Elaborazione Completata");
+
+                                // OPZIONALE: Se il C++ manda un JSON di ritorno, puoi deserializzarlo qui:
+                                //var rispostaDati = JsonSerializer.Deserialize<TuoModello>(risultato);
+                            }
+                            else
+                            {
+                                MessageBox.Show("Il modulo C++ non ha restituito dati!", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+
+
 
                         }
 
@@ -549,9 +590,10 @@ Package info:
             }
         }
 
+        private void Form1_Load(object sender, EventArgs e)
+        {
 
-
-
+        }
     }
 
 }

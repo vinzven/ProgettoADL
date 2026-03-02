@@ -188,7 +188,7 @@ def cercaPaccoFacile(page,dati):
             #if "€" not in p: continue
 
             offerte.append({
-                "sito": "paccoFacile",
+                "sito": page.url,
                 "corriere" : c,
                 "prezzo": p,
                 "tempo": data 

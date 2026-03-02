@@ -103,10 +103,9 @@ def cerca_SpediscoIo(page, dati):
        
         page.get_by_role("button", name="Compara").click()
             
-        page.wait_for_selector("tr.listaComparazione.z-row", state="visible", timeout=60000)
+        page.wait_for_selector("tr.listaComparazione.z-row", state="visible", timeout=15000)
             
-        #page.evaluate("window.stop();")
-            
+        
         page.wait_for_timeout(1000)
         
         lista_corrieri = page.locator("tr.listaComparazione.z-row span[style*='font-size: 15px']").all_inner_texts()
@@ -135,7 +134,7 @@ def cerca_SpediscoIo(page, dati):
             t_pulito = converti_ore_in_giorni( int(t.replace("H", "").strip()) )
 
             offerte.append({
-                "sito": "SpediscoIo",
+                "sito": page.url,
                 "corriere": c,
                 "prezzo": p_pulito,
                 "tempo": t_pulito

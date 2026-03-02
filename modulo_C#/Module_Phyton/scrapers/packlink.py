@@ -152,7 +152,7 @@ def cerca_packlink(page, dati):
             
             
             offerte.append({
-                "sito": "packlink",
+                "sito": page.url,
                 "corriere" :c,
                 "prezzo": p,
                 "tempo": tempi
