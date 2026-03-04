@@ -33,6 +33,14 @@ def main():
         if not input_data: return
         dati_csharp = json.loads(input_data)
         
+        
+        cartella_script = os.path.dirname(os.path.abspath(__file__))
+        percorso_file = os.path.join(cartella_script, "sessione_spedizione.json")
+    
+    # Salviamo i dati su disco esclusivamente per la funziona acquista_paccofacile
+        with open(percorso_file, "w", encoding="utf-8") as f:
+            json.dump(dati_csharp, f, indent=4)
+        
         lista_totale = []
 
         # Utilizzo dei Thread per eseguire gli scraper contemporaneamente
@@ -67,7 +75,7 @@ def main():
         risposta_dal_cpp, errori = processo_cpp.communicate(input=json_finale)
 
         if risposta_dal_cpp:
-            print(f"SCAMBIO COMPLETATO! Python ha questa risposta in mano:\n{risposta_dal_cpp.strip()}")
+            print(f"{risposta_dal_cpp.strip()}")
 
     except Exception as e:
         print(f"Errore nello scambio: {e}")

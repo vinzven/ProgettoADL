@@ -141,6 +141,195 @@ namespace ProgettoGUI
             public int Popolazione { get; set; }
         }
 
+
+        // classi per dialog dei risultati
+        public class Spedizione
+        {
+            public string nome_sito { get; set; }
+            public string corriere { get; set; }
+            public string prezzo { get; set; }
+            public string prezzo_iva { get; set; }
+            public string tempo { get; set; }
+            public string sito { get; set; }
+        }
+
+        public class RisultatoPython
+        {
+            public List<Spedizione> ordinate_per_prezzo { get; set; }
+            public List<Spedizione> ordinate_per_tempo { get; set; }
+        }
+
+
+
+        public partial class FormSpedizioni : Form
+        {
+            private List<Process> processiAttivi = new List<Process>();
+            public FormSpedizioni(RisultatoPython dati)
+            {
+                
+                this.Text = "Migliori Tariffe Trovate";
+                this.Size = new Size(900, 500);
+                this.StartPosition = FormStartPosition.CenterScreen;
+
+                this.FormBorderStyle = FormBorderStyle.FixedSingle;
+                this.MaximizeBox = false;
+
+                TabControl tabs = new TabControl { Dock = DockStyle.Fill };
+
+                // Creiamo le due tab
+                tabs.TabPages.Add(CreaTab("Economiche", dati.ordinate_per_prezzo));
+                tabs.TabPages.Add(CreaTab("Veloci", dati.ordinate_per_tempo));
+
+                this.Controls.Add(tabs);
+            }
+
+            private TabPage CreaTab(string titolo, List<Spedizione> lista)
+            {
+                TabPage pagina = new TabPage(titolo);
+                DataGridView grid = new DataGridView
+                {
+                    Dock = DockStyle.Fill,
+                    DataSource = lista,
+                    ReadOnly = false,
+                    AllowUserToAddRows = false,
+                    RowHeadersVisible = false,
+                    AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                    SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                    AllowUserToResizeColumns = false,
+                    AllowUserToResizeRows = false
+                };
+
+                // USIAMO QUESTO EVENTO: viene lanciato quando i dati sono stati "agganciati"
+                grid.DataBindingComplete += (s, e) =>
+                {
+
+                    grid.Columns["sito"].Visible = false;
+                    grid.Columns["prezzo"].Visible = false;
+                };
+
+                // Aggiungiamo la colonna del Bottone (questa non sparisce perché la aggiungiamo a mano)
+                DataGridViewButtonColumn colonnaBottone = new DataGridViewButtonColumn
+                {
+                    Name = "btnVai",
+                    HeaderText = "Azione",
+                    Text = "Vai al sito",
+                    UseColumnTextForButtonValue = true,
+                    Width = 100,
+                    AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+                };
+                grid.Columns.Add(colonnaBottone);
+
+
+                grid.CellContentClick += async (sender, e) => {
+                    var senderGrid = (DataGridView)sender;
+                    if (senderGrid.Columns[e.ColumnIndex] is DataGridViewButtonColumn && e.RowIndex >= 0)
+                    {
+
+                        var riga = senderGrid.Rows[e.RowIndex];
+                        string url = riga.Cells["sito"].Value?.ToString();
+                        string corriere = riga.Cells["corriere"].Value?.ToString();
+                        string prezzo_iva = riga.Cells["prezzo_iva"].Value?.ToString();
+                        string prezzo = riga.Cells["prezzo"].Value?.ToString();
+                        string nome_sito = riga.Cells["nome_sito"].Value?.ToString();
+
+                        if (!string.IsNullOrEmpty(url))
+                        {
+
+                            try
+                            {
+                                Console.WriteLine($"URL: {url} | Corriere: {corriere} | Prezzo: {prezzo}€");
+
+                                await ApriSitoWeb(url, prezzo, corriere);
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show(
+                                    "Errore durante l'apertura del sito.\n\n" + ex.Message,
+                                    "Errore",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Error
+                                );
+                            }
+
+                        }
+                        else
+                        {
+                            MessageBox.Show(
+                                "URL non valido per questa spedizione.",
+                                "Attenzione",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Warning
+                            );
+                        }
+
+                     }
+                };
+
+                pagina.Controls.Add(grid);
+                return pagina;
+            }
+
+            private async Task ApriSitoWeb(string url, string prezzo, string corriere)
+            {
+                string percorsoCompleto = Path.Combine(
+                                 AppDomain.CurrentDomain.BaseDirectory,
+                                "Module_Phyton",
+                                "prova.py"
+                                                    );
+                ProcessStartInfo start = new ProcessStartInfo();
+                {
+
+                    start.FileName = "python";
+                    start.Arguments = $"\"{percorsoCompleto}\" \"{url}\" \"{prezzo}\" \"{corriere}\"";
+                    start.UseShellExecute = false;
+                    start.RedirectStandardInput = false;
+                    start.RedirectStandardOutput = false;
+                    start.CreateNoWindow = true;
+                }
+
+                //LoadingForm f1 = new LoadingForm("Elaborazione in corso attendere...");
+                //f1.Show();
+                //f1.Refresh();
+                Process p = new Process();
+                p.StartInfo = start;
+
+                p.Start();
+
+                processiAttivi.Add(p);
+
+                try
+                {
+                    await p.WaitForExitAsync();
+                }
+                finally
+                {
+                    processiAttivi.Remove(p);
+                }
+
+            }
+
+
+            protected override void OnFormClosing(FormClosingEventArgs e)
+            {
+                foreach (var p in processiAttivi)
+                {
+                    try
+                    {
+                        if (!p.HasExited)
+                            p.Kill(true); // chiude anche eventuali figli
+                    }
+                    catch { }
+                }
+
+                base.OnFormClosing(e);
+            }
+
+        }
+
+
+
+
+
         private async Task CaricaTutteLeCittaDellaNazione(string codiceISO, ComboBox comboBoxSelected)
         {
             string user = "assasinghira01";
@@ -494,13 +683,38 @@ Package info:
                             // 3. GESTISCI IL RISULTATO
                             if (!string.IsNullOrEmpty(risultato))
                             {
-                                // Se il C++ ha mandato un semplice testo, lo mostri:
+                                try
+                                {
+                                    // Cerchiamo la posizione della prima parentesi graffa
+                                    int indiceInizioJson = risultato.IndexOf('{');
 
-                                MessageBox.Show("Risposta dal Modulo C++:\n" + risultato, "Elaborazione Completata");
+                                    if (indiceInizioJson != -1)
+                                    {
+                                        // Prendiamo solo dalla prima graffa in poi
+                                        string jsonPuro = risultato.Substring(indiceInizioJson);
 
-                                // OPZIONALE: Se il C++ manda un JSON di ritorno, puoi deserializzarlo qui:
-                                //var rispostaDati = JsonSerializer.Deserialize<TuoModello>(risultato);
+                                        var opzioni = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                                        RisultatoPython datiFinali = JsonSerializer.Deserialize<RisultatoPython>(jsonPuro, opzioni);
+
+                                        if (datiFinali != null)
+                                        {
+                                            FormSpedizioni f = new FormSpedizioni(datiFinali);
+                                            f.ShowDialog();
+                                           
+                                        }
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("Errore: Python non ha restituito alcun dato JSON valido.\nOutput ricevuto: " + risultato);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    MessageBox.Show("Errore durante l'estrazione dei dati: " + ex.Message);
+                                }
+
                             }
+
                             else
                             {
                                 MessageBox.Show("Il modulo C++ non ha restituito dati!", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -535,10 +749,6 @@ Package info:
         }
 
 
-
-
-
-
         private void comboBoxCAPMittente_SelectedIndexChanged(object sender, EventArgs e)
         {
 
@@ -566,7 +776,7 @@ Package info:
                 psi.FileName = "python";
 
                 // Percorso del file .py
-                string scriptPath = @"C:\Users\antonio\source\repos\ProgettoADL\Module_Phyton\Module_Phyton.py";
+                string scriptPath = @"C:\Users\antonio\source\repos\ProgettoADL\modulo_C#\Module_Phyton\scrapers\prova.py";
 
                 // COSTRUZIONE COMANDO
                 // --url e --corriere sono gli argomenti che abbiamo definito in Python con argparse

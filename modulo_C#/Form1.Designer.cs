@@ -94,7 +94,7 @@
             // 
             button1.BackColor = Color.FromArgb(192, 255, 192);
             button1.Font = new Font("Segoe UI", 24F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button1.Location = new Point(403, 330);
+            button1.Location = new Point(405, 330);
             button1.Margin = new Padding(3, 2, 3, 2);
             button1.Name = "button1";
             button1.Size = new Size(172, 62);

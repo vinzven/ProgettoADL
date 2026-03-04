@@ -45,19 +45,11 @@ def impostazione(page,input,selettore,nazione,citta,cap):
 
 def cerca_SpediscoIo(page, dati):
     
-   
-    print("Scraping spediscoIo...", file=sys.stderr)
     offerte = []
 
     try:
         # --- 1. AVVIO ---
-         page.goto("https://www.iospedisco.it/")
-
-    except Exception as e:
-
-        print(f"Errore spediscoIo: {e}", file=sys.stderr)
-        
-    try :
+        page.goto("https://www.iospedisco.it/")
         try:
          # chiudiamo la iframe dell'assistenza 
             chat_frame = page.frame_locator('iframe[data-test-id="chat-widget-iframe"]')
@@ -122,27 +114,26 @@ def cerca_SpediscoIo(page, dati):
         
         for corriere, prezzo, tempo in zip(lista_corrieri, lista_prezzi, lista_tempi):
             # Pulizia stringhe
-            p = prezzo.strip()
             c = corriere.strip()
-            t = tempo.strip()
             
             # Controllo validità minimo
          
-            p_pulito = p.replace("€", "").strip() 
-            
+            p = float(prezzo.replace("€", "").replace(",", ".").strip())
+            prezzo_iva=p+p*0.22
     
-            t_pulito = converti_ore_in_giorni( int(t.replace("H", "").strip()) )
+            t_pulito = converti_ore_in_giorni( int(tempo.replace("H", "").strip()) )
 
             offerte.append({
+                "nome_sito": "spediscoio",
                 "sito": page.url,
                 "corriere": c,
-                "prezzo": p_pulito,
+                "prezzo": f"{p:.2f}",
+                "prezzo_iva": f"{prezzo_iva:.2f}",
                 "tempo": t_pulito
             })
-            print(f" -> Preso: {c} a {p}", file=sys.stderr)
 
     except Exception as e:
-        print(f"Errore Playwright: {e}", file=sys.stderr)
+        print(f" Errore ricerca in spediscoio: {e}", file=sys.stderr)
 
     return offerte
         

@@ -2,6 +2,7 @@ import sys
 from deep_translator import GoogleTranslator
 from datetime import datetime
 
+
 def traduci_dato(testo, destinazione='en'):
     # Traduce da qualsiasi lingua (auto) all'inglese (en)
     traduzione = GoogleTranslator(source='auto', target=destinazione).translate(testo)
@@ -96,23 +97,14 @@ def impostazione(page,input,selettore,nazione,citta,cap):
 
 def cercaPaccoFacile(page,dati):
     
-    print("Scraping spediscoIo...", file=sys.stderr)
     offerte = []
 
     try:
         # --- 1. AVVIO ---
         page.goto("https://www.paccofacile.it/")
     
-    except Exception as e:
-
-        
-        print(f"Errore spediscoIo: {e}", file=sys.stderr)
-        
-    
-    try:
         try:
-            page.get_by_role("button", name="Accetta tutti").click()(timeout=3000)
-    
+            page.get_by_role("button", name="Accetta tutti").click(timeout=3000)
     
         except:
             pass
@@ -188,14 +180,16 @@ def cercaPaccoFacile(page,dati):
             #if "€" not in p: continue
 
             offerte.append({
+                "nome_sito": "paccofacile",
                 "sito": page.url,
                 "corriere" : c,
                 "prezzo": p,
+                "prezzo_iva":p, 
                 "tempo": data 
             })
         
     except Exception as e:
-        print(f"Errore Packlink: {e}", file=sys.stderr)
+        print(f"Errore ricerca in paccofacile: {e}", file=sys.stderr)
         
     return offerte
    

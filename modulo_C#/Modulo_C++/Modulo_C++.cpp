@@ -10,20 +10,18 @@ using json = nlohmann::json;
 
 // 1. Trasforma "4,00" in 4.00 (numero reale)
 double estrai_prezzo(std::string prezzo_str) {
-    // Trova la virgola e la sostituisce col punto
-    size_t pos = prezzo_str.find(',');
-    if (pos != std::string::npos) {
-        prezzo_str[pos] = '.';
-    }
+    // Sostituisce la virgola col punto se presente (per compatibilità locale)
+    std::replace(prezzo_str.begin(), prezzo_str.end(), ',', '.');
+
     try {
-        return std::stod(prezzo_str); // Converte la stringa in numero decimale (double)
+        return std::stod(prezzo_str);
     }
     catch (...) {
-        return 99999.0; // Se c'è un errore imprevisto, mette l'offerta in fondo
+        return 999999.0; // In caso di errore, sposta l'elemento in fondo alla lista
     }
 }
 
-// 2. Estrae il numero da "2 giorni lavorativi" -> restituisce 2
+// 2. Estrae il numero da " 2 giorni lavorativi" -> restituisce 2
 int estrai_tempo(const std::string& tempo_str) {
     std::string solo_numeri = "";
     for (char c : tempo_str) {
@@ -59,21 +57,22 @@ int main() {
 
             // 2. ORDINAMENTO PER PREZZO (Crescente: dal più basso al più alto)
             std::sort(offerte_prezzo.begin(), offerte_prezzo.end(), [](const json& a, const json& b) {
-                // Legge le stringhe, le converte in numeri e le confronta
-                return estrai_prezzo(a["prezzo"]) < estrai_prezzo(b["prezzo"]);
+
+                return estrai_prezzo(a["prezzo_iva"]) < estrai_prezzo(b["prezzo_iva"]);
+
                 });
 
             // 3. ORDINAMENTO PER TEMPO (Crescente: dal più veloce al più lento)
             std::sort(offerte_tempo.begin(), offerte_tempo.end(), [](const json& a, const json& b) {
-                // Estrae i giorni e li confronta
+                
                 return estrai_tempo(a["tempo"]) < estrai_tempo(b["tempo"]);
                 });
 
             // 4. COSTRUZIONE DEL JSON FINALE
             json risultato_finale;
-            risultato_finale["ordinate_per_prezzoo"] = offerte_prezzo;
+            risultato_finale["ordinate_per_prezzo"] = offerte_prezzo;
             risultato_finale["ordinate_per_tempo"] = offerte_tempo;
-            risultato_finale["totale_offerte_analizzatee"] = lista_originale.size();
+            risultato_finale["totale_offerte"] = lista_originale.size();
 
             // 5. STAMPA IL RISULTATO PER MANDARLO A C# (tramite Python)
             std::cout << risultato_finale.dump(4) << std::endl;

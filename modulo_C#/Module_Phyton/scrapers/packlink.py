@@ -73,6 +73,7 @@ def cerca_packlink(page, dati):
 
     try:
         # --- 1. AVVIO ---
+
         page.goto("https://www.packlink.it/")
 
         # Cookie
@@ -140,25 +141,46 @@ def cerca_packlink(page, dati):
     
     
         lista_durata = page.locator("article[data-id^='service-'] small[class='giger-10mxsa9'] ").all_inner_texts()
-    
         
-       
-        for corrieri, valori, tempi,prezzi in zip(lista_corrieri,lista_valori, lista_durata, lista_prezzi):
+        servizi = page.locator("article[data-id^='service-']").all()
+        
+        
+        spese_numeriche = []
+
+        for servizio in servizi:
+     # 2. Cerca lo span delle spese SOLO dentro questo 'servizio'
+            locatore_spese = servizio.locator("span.giger-zm2tq3")
+
+     # 3. Controllo di esistenza
+            if locatore_spese.count() > 0:
+        # Se esiste, estraiamo e puliamo il prezzo (es: "+ 0,99 €" -> "0.99")
+                testo_grezzo = locatore_spese.first.inner_text()
+                match = re.search(r"(\d+,\d+)", testo_grezzo)
+                spese = match.group(1).replace(",", ".") if match else "0.00"
+            else:
+        # Se lo span non c'è, le spese sono zero
+                spese = "0.00"
+                
+            spese_numeriche.append(float(spese))
+            
+  
+        for corrieri, valori, tempi,prezzi,spese in zip(lista_corrieri,lista_valori, lista_durata, lista_prezzi,spese_numeriche):
             
             tempi= calcola_giorni_lavorativi(int(valori.strip()),tempi)
             c=corrieri.strip()
-            p=prezzi.replace("€", "").strip()
-            
-            
-            
+            p=float(prezzi.replace("€", "").replace(",", ".").strip())
+            prezzo_iva=(p+spese)+(p+spese)*0.22
+        
             offerte.append({
+                "nome_sito": "packlink",
                 "sito": page.url,
                 "corriere" :c,
-                "prezzo": p,
+                "prezzo": f"{p:.2f}",
+                "prezzo_iva": f"{prezzo_iva:.2f}",
                 "tempo": tempi
             })
     
     except Exception as e:
-        print(f"Errore Packlink: {e}", file=sys.stderr)
+        print(f" Errore ricerca in packlink: {e}", file=sys.stderr)
 
     return offerte
