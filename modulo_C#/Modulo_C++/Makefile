@@ -4,13 +4,13 @@
 CXX = g++
 
 # Flag di compilazione:
+# Aggiunti flag -static per incorporare le librerie ed evitare errori DLL
+CXXFLAGS = -g -Wall -Iinclude -static -static-libgcc -static-libstdc++
 
-CXXFLAGS = -g -Wall -Iinclude
-
-# Nome dell'eseguibile finale
+# Nome dell'eseguibile finale 
 TARGET = ordinatore_offerte
 
-# file sorgente principale
+# File sorgente principale
 SRC = Modulo_C++.cpp
 
 # Regola di default: compila il progetto

@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Ignora l'eseguibile C++ generato dal Makefile
+Modulo_C++/ordinatore_offerte.exe
+Modulo_C++/ordinatore_offerte

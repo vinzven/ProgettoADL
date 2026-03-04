@@ -1,5 +1,6 @@
 import sys
 import json
+import platform
 from concurrent.futures import ThreadPoolExecutor
 from playwright.sync_api import sync_playwright
 from scrapers.packlink import cerca_packlink
@@ -61,7 +62,21 @@ def main():
 
         cartella_corrente = os.path.dirname(os.path.abspath(__file__))
         cartella_base = os.path.dirname(cartella_corrente)
-        percorso_cpp = os.path.join(cartella_base, "Modulo_C++", "ordinatore_offerte.exe")
+
+
+        # Se siamo su Windows aggiungiamo .exe, altrimenti (Mac/Linux) lasciamo vuoto
+        estensione = ".exe" if platform.system() == "Windows" else ""
+
+        # Componiamo il percorso dinamicamente
+        
+        nome_eseguibile = f"ordinatore_offerte{estensione}"
+        percorso_cpp = os.path.join(cartella_base, "Modulo_C++", nome_eseguibile)
+        
+        if platform.system() == "Windows":
+    # Usiamo getattr per evitare errori se la costante non esiste
+            flags = getattr(subprocess, 'CREATE_NEW_CONSOLE', 0)
+        else:
+            flags = 0
 
         processo_cpp = subprocess.Popen(
             [percorso_cpp],
@@ -69,7 +84,7 @@ def main():
             stdout=subprocess.PIPE,
             text=True,
             encoding='utf-8',
-            creationflags=subprocess.CREATE_NEW_CONSOLE
+            creationflags=flags
         )
 
         risposta_dal_cpp, errori = processo_cpp.communicate(input=json_finale)
