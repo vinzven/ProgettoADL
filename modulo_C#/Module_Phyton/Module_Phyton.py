@@ -61,7 +61,7 @@ def main():
 
         cartella_corrente = os.path.dirname(os.path.abspath(__file__))
         cartella_base = os.path.dirname(cartella_corrente)
-        percorso_cpp = os.path.join(cartella_base, "Modulo_C++", "x64", "Debug", "Modulo_C++.exe")
+        percorso_cpp = os.path.join(cartella_base, "Modulo_C++", "ordinatore_offerte.exe")
 
         processo_cpp = subprocess.Popen(
             [percorso_cpp],

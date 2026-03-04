@@ -271,16 +271,19 @@ namespace ProgettoGUI
 
             private async Task ApriSitoWeb(string url, string prezzo, string corriere)
             {
-                string percorsoCompleto = Path.Combine(
-                                 AppDomain.CurrentDomain.BaseDirectory,
-                                "Module_Phyton",
-                                "prova.py"
-                                                    );
+                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                string cartellaPython = Path.Combine(baseDir, "Module_Phyton");
+
+                // Interprete Python dentro l'ambiente virtuale
+                string percorsoInterprete = Path.Combine(cartellaPython, "env", "Scripts", "python.exe");
+
+                // Percorso dello script Python
+                string percorsoScript = Path.Combine(cartellaPython, "Acquisto.py");
+
                 ProcessStartInfo start = new ProcessStartInfo();
                 {
-
-                    start.FileName = "python";
-                    start.Arguments = $"\"{percorsoCompleto}\" \"{url}\" \"{prezzo}\" \"{corriere}\"";
+                    start.FileName = percorsoInterprete;
+                    start.Arguments = $"\"{percorsoScript}\" \"{url}\" \"{prezzo}\" \"{corriere}\"";
                     start.UseShellExecute = false;
                     start.RedirectStandardInput = false;
                     start.RedirectStandardOutput = false;
@@ -641,17 +644,24 @@ Package info:
                             };
 
                             string jsonString = JsonSerializer.Serialize(datiJson);
+                            // Percorso base dell'applicazione
+                            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                            string cartellaPython = Path.Combine(baseDir, "Module_Phyton");
 
-                            string percorsoCompleto = Path.Combine(
-                             AppDomain.CurrentDomain.BaseDirectory,
-                            "Module_Phyton",
-                            "Module_Phyton.py"
-                                                );
+                            // Interprete Python dentro l'ambiente virtuale
+                            string percorsoInterprete = Path.Combine(cartellaPython, "env", "Scripts", "python.exe");
+
+                            // Percorso dello script Python
+                            string percorsoScript = Path.Combine(cartellaPython, "Module_Phyton.py");
+
                             ProcessStartInfo start = new ProcessStartInfo();
 
+                            // usa l'ambiente virtuale per essere sicuri di avere tutte le dipendenze
+                            start.FileName = percorsoInterprete;
 
-                            start.FileName = "python";
-                            start.Arguments = $"\"{percorsoCompleto}\"";
+                            // Passiamo il percorso dello script come argomento
+                            start.Arguments = $"\"{percorsoScript}\"";
+
                             start.UseShellExecute = false;
                             start.RedirectStandardInput = true;
                             start.RedirectStandardOutput = true;

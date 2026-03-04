@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include "json.hpp"
+#include "include/json.hpp"
 
 using json = nlohmann::json;
 
@@ -40,7 +40,7 @@ int estrai_tempo(const std::string& tempo_str) {
     }
 }
 
-// --- PROGRAMMA PRINCIPALE ---
+
 
 int main() {
     std::string stringa_json_da_python;

@@ -12,6 +12,7 @@ from checkout.paccofacile import acquisto_paccofacile
 
 def recupera_sessione():
     # Individua il percorso del file (deve essere lo stesso usato per salvare)
+    
     cartella_script = os.path.dirname(os.path.abspath(__file__))
     percorso_file = os.path.join(cartella_script, "sessione_spedizione.json")
     
@@ -29,13 +30,13 @@ def acquista_migliore_da_url(url_target):
     print(f"--- AVVIO MODALITÀ ACQUISTO ---", file=sys.stderr)
     
     with sync_playwright() as p:
-        # IMPORTANTE: headless=False perché l'utente deve vedere e interagire
+        
         browser = p.chromium.launch(headless=False , channel="chrome", args=["--start-maximized"])
         context = browser.new_context(no_viewport=True)
         page = context.new_page()
         
         try:
-            # --- ECCO L'IF CHE SMISTA IL LAVORO ---
+            
             if "packlink.it" in url_target:
                 acquisto_packlink(page, url_target,prezzo_da_csharp,corriere_da_csharp)
                 
@@ -47,7 +48,7 @@ def acquista_migliore_da_url(url_target):
                 pass 
                 
             else:
-                # FALLBACK: Se è un sito che non hai ancora programmato, aprilo e basta
+                
                 print("Sito non riconosciuto Lo apro in modalità manuale.", file=sys.stderr)
 
                 
@@ -58,6 +59,7 @@ def acquista_migliore_da_url(url_target):
         try:
             page.wait_for_event("close", timeout=0) 
         except:
+            
             # Serve a evitare errori se l'utente chiude il browser proprio mentre lo script sta finendo
             pass
             
