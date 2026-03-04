@@ -19,7 +19,7 @@ all: $(TARGET)
 $(TARGET): $(SRC)
 	$(CXX) $(CXXFLAGS) $(SRC) -o $(TARGET)
 
-# Regola per pulire la cartella dai file compilati (consigliato per la consegna)
+# Regola per pulire la cartella dai file compilati 
 clean:
 	rm -f $(TARGET)
 

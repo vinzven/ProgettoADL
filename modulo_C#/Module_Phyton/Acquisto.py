@@ -24,19 +24,20 @@ def recupera_sessione():
     except FileNotFoundError:
         return None  
 
-
+# mi indirizza all'offerta
 def acquista_migliore_da_url(url_target):
    
     print(f"--- AVVIO MODALITÀ ACQUISTO ---", file=sys.stderr)
     
     with sync_playwright() as p:
         
+        # browser visibile cosi l'utente può vedere l'offerta e usarla
         browser = p.chromium.launch(headless=False , channel="chrome", args=["--start-maximized"])
         context = browser.new_context(no_viewport=True)
         page = context.new_page()
         
         try:
-            
+            # funzione diversa in base al sito
             if "packlink.it" in url_target:
                 acquisto_packlink(page, url_target,prezzo_da_csharp,corriere_da_csharp)
                 
@@ -66,7 +67,7 @@ def acquista_migliore_da_url(url_target):
 
 
 if __name__ == "__main__":
-    
+    # argomenti passati dal c#
     if len(sys.argv) > 3:
         url_da_csharp = sys.argv[1]
         prezzo_da_csharp = sys.argv[2]

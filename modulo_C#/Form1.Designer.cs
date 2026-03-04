@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             panel1 = new Panel();
-            button2 = new Button();
             button1 = new Button();
             panel4 = new Panel();
             label12 = new Label();
@@ -67,7 +66,6 @@
             // panel1
             // 
             panel1.BackColor = SystemColors.Window;
-            panel1.Controls.Add(button2);
             panel1.Controls.Add(button1);
             panel1.Controls.Add(panel4);
             panel1.Controls.Add(panel3);
@@ -79,16 +77,6 @@
             panel1.Size = new Size(975, 492);
             panel1.TabIndex = 0;
             panel1.Paint += panel1_Paint;
-            // 
-            // button2
-            // 
-            button2.Location = new Point(718, 327);
-            button2.Name = "button2";
-            button2.Size = new Size(133, 65);
-            button2.TabIndex = 4;
-            button2.Text = "button2";
-            button2.UseVisualStyleBackColor = true;
-            button2.Click += button2_Click;
             // 
             // button1
             // 
@@ -283,6 +271,7 @@
             label6.Size = new Size(68, 20);
             label6.TabIndex = 4;
             label6.Text = "Country:";
+            label6.Click += label6_Click;
             // 
             // comboBoxNazioneDestinatario
             // 
@@ -381,6 +370,7 @@
             label5.Size = new Size(68, 20);
             label5.TabIndex = 3;
             label5.Text = "Country:";
+            label5.Click += label5_Click;
             // 
             // comboBoxNazioneMittente
             // 
@@ -472,6 +462,5 @@
         private Label label13;
         private ComboBox comboBoxCAPDestinatario;
         private Label label14;
-        private Button button2;
     }
 }

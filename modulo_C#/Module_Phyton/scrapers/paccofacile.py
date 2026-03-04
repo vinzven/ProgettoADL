@@ -11,6 +11,8 @@ def traduci_dato(testo, destinazione='en'):
 
 from datetime import datetime, timedelta
 
+
+
 def converti_data_in_giorni_lavorativi(giorno_str, mese_str):
     anno_corrente = datetime.now().year
     
@@ -64,6 +66,9 @@ def converti_data_in_giorni_lavorativi(giorno_str, mese_str):
     return f"{(giorni_lavorativi)} giorni lavorativi"
 
 
+
+# funzione per impostare i dati
+
 def impostazione(page,input,selettore,nazione,citta,cap):
     try:
         
@@ -71,14 +76,15 @@ def impostazione(page,input,selettore,nazione,citta,cap):
             
             citta=traduci_dato(citta)
             
-        
+        # inserimento nazione
         page.select_option(input, label=nazione)
         selettore.click()
         page.wait_for_timeout(2000)
         
+        #scrittura
         selettore.press_sequentially(citta, delay=100)
         page.wait_for_timeout(2000)
-    
+     # seleziona solo il cap coretto
         suggerimento = page.locator(".tt-suggestion", has_text=f"({cap})")
         
         if suggerimento.count() > 0 :
@@ -88,7 +94,6 @@ def impostazione(page,input,selettore,nazione,citta,cap):
             
             return "il cap inserito non è disponibile su www.paccoFacile.it"
         
-       
 
     except Exception as e:
         print(f"Errore Nazione: {e}", file=sys.stderr)
@@ -108,7 +113,9 @@ def cercaPaccoFacile(page,dati):
     
         except:
             pass
-
+        
+        
+        # dati da inserire per compilazione
         nazMit= dati['sender']['country'].split(" -")[0]
         citMit= dati['sender']['city']
         capMit= dati['sender']['ZIP']
@@ -116,6 +123,7 @@ def cercaPaccoFacile(page,dati):
         citDest=dati['receiver']['city']
         capDest=dati['receiver']['ZIP']
         
+        #selettori da utilizzare
         selettoreMit= page.get_by_role("searchbox", name="Luogo e Cap")
         selettoreDest=page.get_by_role("searchbox", name="Cap destinazione")
         inputMit="#input-shipment-country-partenza"
@@ -125,13 +133,13 @@ def cercaPaccoFacile(page,dati):
         lunghezza=page.get_by_role("textbox", name="Lato 1 in cm")
         larghezza=page.get_by_role("textbox", name="Lato 2 in cm")
         altezza = page.get_by_role("textbox", name="Lato 3 in cm")
-        
+        # inserimento dati mittente e destinatario
         impostazione(page,inputMit,selettoreMit,nazMit,citMit,capMit)
         page.wait_for_timeout(2000)
         impostazione(page,inputDest,selettoreDest,nazDest,citDest,capDest)
         page.wait_for_timeout(2000)
         
-        
+        # inserimento dimensioni
         peso.fill(
             str(dati['package']['weight']))
         lunghezza.fill(
@@ -143,11 +151,12 @@ def cercaPaccoFacile(page,dati):
         
         page.wait_for_timeout(1000)
         
+        # click bottone 
         page.get_by_role("button", name="CALCOLA TARIFFA").click()
         page.wait_for_timeout(1000)
         bottone = page.locator("#btn-shipment-calcola-prezzo")
 
-# Aspetta che diventi visibile nel DOM e a schermo
+# Aspetta che diventi visibile 
         bottone.wait_for(state="visible")
 
 # Ora clicca
@@ -155,30 +164,32 @@ def cercaPaccoFacile(page,dati):
         page.wait_for_timeout(1000)
         page.get_by_role("link", name="Scegli il servizio").click()
        
+       # raccolta dati 
         page.wait_for_selector("div.form_spedizione_container_corriere_servizio_order", state="visible", timeout=15000)
         
         page.wait_for_timeout(1000)
         immagini = page.locator("div.form_spedizione_container_corriere_servizio_order img[alt^='logo']").all()
-        
+        # raccolta corrieri
         lista_corrieri = [img.get_attribute("alt").replace("logo ", "").strip() for img in immagini]
        
+       # prezzi
         lista_prezzi   = page.locator("div.form_spedizione_container_corriere_servizio_order span[id*='form_spedizione_prezzo_totale']").all_inner_texts()
         
+        # dati di input per la funzione per la data corretta
         lista_giorni = page.locator("div.form_spedizione_container_corriere_servizio_order div.col-lg-4.col-6.pt-2.destination_column p[class='m-0'] strong").all_inner_texts()
 
         lista_mesi  = page.locator("div.form_spedizione_container_corriere_servizio_order p.m-0:nth-of-type(3) small").all_inner_texts()
 
         
-        
+        # aggregazione offerte
         for prezzo,corriere, giorni,mesi, in zip( lista_prezzi, lista_corrieri,lista_giorni ,lista_mesi):
             # Pulizia stringhe
             p = prezzo.strip()
             c= corriere.strip()
             data=converti_data_in_giorni_lavorativi(giorni.strip(),mesi.strip())
         
-            # Controllo validità minimo
-            #if "€" not in p: continue
-
+        
+           # json finale 
             offerte.append({
                 "nome_sito": "paccofacile",
                 "sito": page.url,

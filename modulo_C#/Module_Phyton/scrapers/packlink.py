@@ -3,6 +3,7 @@ import sys
 from playwright.sync_api import sync_playwright
 import re
 
+# calcolo giorni lavorativi
 def calcola_giorni_lavorativi(valore, unita):
 
     try:
@@ -23,7 +24,7 @@ def calcola_giorni_lavorativi(valore, unita):
 
 
 
-
+ # funzione per inseire i dati
 def impostazione(page,input,selettore,nazione, citta, cap):
     try:
           
@@ -134,24 +135,23 @@ def cerca_packlink(page, dati):
 
         lista_prezzi = page.locator("article[data-id^='service-'] h2[class*='giger-14rg4q7']").filter(has_text="€").all_inner_texts()
 
-       
-                    
+              # inputut per la funzione del tempo   
         lista_valori = page.locator("article[data-id^='service-'] p[class='giger-m1r6m0'] ").all_inner_texts()
         
     
-    
         lista_durata = page.locator("article[data-id^='service-'] small[class='giger-10mxsa9'] ").all_inner_texts()
         
+        # spese gestione
         servizi = page.locator("article[data-id^='service-']").all()
         
         
         spese_numeriche = []
 
         for servizio in servizi:
-     # 2. Cerca lo span delle spese SOLO dentro questo 'servizio'
+     # Cerca lo span delle spese SOLO dentro questo 'servizio'
             locatore_spese = servizio.locator("span.giger-zm2tq3")
 
-     # 3. Controllo di esistenza
+     # Controllo di esistenza
             if locatore_spese.count() > 0:
         # Se esiste, estraiamo e puliamo il prezzo (es: "+ 0,99 €" -> "0.99")
                 testo_grezzo = locatore_spese.first.inner_text()
@@ -163,14 +163,17 @@ def cerca_packlink(page, dati):
                 
             spese_numeriche.append(float(spese))
             
-  
+     # aggregazione offerte
         for corrieri, valori, tempi,prezzi,spese in zip(lista_corrieri,lista_valori, lista_durata, lista_prezzi,spese_numeriche):
             
+            # calcolo giorni lavorativi
             tempi= calcola_giorni_lavorativi(int(valori.strip()),tempi)
             c=corrieri.strip()
             p=float(prezzi.replace("€", "").replace(",", ".").strip())
+            # calcolo prezzo totale(prezzo +spese gesione con iva inclusa)
             prezzo_iva=(p+spese)+(p+spese)*0.22
         
+        # json da mandare 
             offerte.append({
                 "nome_sito": "packlink",
                 "sito": page.url,

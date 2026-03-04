@@ -2,6 +2,8 @@ import sys
 from playwright.sync_api import sync_playwright
 
 
+# funzione per calcolare i giorni lavorativi
+
 def converti_ore_in_giorni(ore):
     giorni = int(ore / 24)
 
@@ -9,7 +11,7 @@ def converti_ore_in_giorni(ore):
 
 
 
-
+# inserimento dati 
 
 def impostazione(page,input,selettore,nazione,citta,cap):
     try:
@@ -22,19 +24,23 @@ def impostazione(page,input,selettore,nazione,citta,cap):
         page.keyboard.press("Enter")
         
         page.wait_for_timeout(2000)
+        # scrittura dei dati
         selettore.press_sequentially(citta, delay=100)
         
         # Aspettiamo che il sito elabori e mostri il menu a tendina
         page.wait_for_timeout(3000)
+        # appena mostra il menu a tendina selezionamo solo il cap coretto
         opzione_corretta=page.locator("li.select2-results__option", has_text=cap)
         
         if opzione_corretta.count() > 0:
-
+            
+            # clicca il primo elemento con cap coretto
             opzione_corretta.first.click()
             
         else:
            return "il cap inserito non è disponibile su www.paccoFacile.it"
         
+        # clicca ok per uscire dalla casella 
         page.keyboard.press("Enter")
 
          
@@ -102,10 +108,10 @@ def cerca_SpediscoIo(page, dati):
         
         lista_corrieri = page.locator("tr.listaComparazione.z-row span[style*='font-size: 15px']").all_inner_texts()
         
-        # 2. Prendiamo TUTTI i prezzi in un colpo solo
+        #  Prendiamo TUTTI i prezzi in un colpo solo
         lista_prezzi = page.locator("tr.listaComparazione.z-row .bg-primary span[style*='font-size: 32px']").all_inner_texts()
         
-        # 3. Prendiamo TUTTI i tempi in un colpo solo
+        #  Prendiamo TUTTI i tempi in un colpo solo
         lista_tempi = page.locator("tr.listaComparazione.z-row .text-secondary span[style*='font-size: 32px']").all_inner_texts()
         
 
@@ -119,8 +125,10 @@ def cerca_SpediscoIo(page, dati):
             # Controllo validità minimo
          
             p = float(prezzo.replace("€", "").replace(",", ".").strip())
+            # calcolo prezzo con iva
             prezzo_iva=p+p*0.22
-    
+            
+            # calcolo giorni lavorativi
             t_pulito = converti_ore_in_giorni( int(tempo.replace("H", "").strip()) )
 
             offerte.append({

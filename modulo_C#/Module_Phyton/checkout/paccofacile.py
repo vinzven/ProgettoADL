@@ -41,10 +41,10 @@ def impostazione(page,input,selettore,nazione,citta,cap):
 
 def acquisto_paccofacile(page, url_target,prezzo_target,corriere_target,dati):
 
-
+# reinserisco i dati come fatto precedentemente
     try:
         # --- 1. AVVIO ---
-        page.goto("https://www.paccofacile.it/")
+        page.goto(url_target)
     
         try:
             page.get_by_role("button", name="Accetta tutti").click(timeout=3000)
@@ -105,7 +105,7 @@ def acquisto_paccofacile(page, url_target,prezzo_target,corriere_target,dati):
             
         page.wait_for_timeout(1000)
         
-        
+        # salvo i dati e tutti i bottini
         immagini = page.locator("div.form_spedizione_container_corriere_servizio_order img[alt^='logo']").all()
             
         lista_corrieri = [img.get_attribute("alt").replace("logo ", "").strip() for img in immagini]
@@ -116,14 +116,14 @@ def acquisto_paccofacile(page, url_target,prezzo_target,corriere_target,dati):
 
         successo = False
 
-    
+    # aggregazione
         for corriere, prezzo, bottone in zip(lista_corrieri, lista_prezzi, bottoni):
-            
+            # pulizia
             p = prezzo.strip()
             c= corriere.strip()
 
             if corriere_target.lower() in c.lower() and prezzo_target == p:
-                print(f"Match trovato! Clicco su {corriere} a {p}€", file=sys.stderr)
+                # clicco l'offerta giusta
                 bottone.click()
                 successo = True
                 break # Esci dal ciclo appena trovi quello giusto

@@ -6,11 +6,10 @@ from playwright.sync_api import sync_playwright
 from scrapers.packlink import cerca_packlink
 from scrapers.spediscoIo import cerca_SpediscoIo
 from scrapers.paccofacile import cercaPaccoFacile
-from scrapers.spedire import cercaSpedire
 import os
 import subprocess
 
-# 1. Nuova funzione helper per ogni thread
+#  funzione  per ogni thread
 def esegui_task(nome_scraper, funzione_scraper, dati):
     print(f"Avvio {nome_scraper}...")
     try:
@@ -27,6 +26,7 @@ def esegui_task(nome_scraper, funzione_scraper, dati):
         print(f"Errore in {nome_scraper}: {e}")
         return []
 
+# utilizziamo i thread per eseguire contemporaneamente i vari siti
 def main():
     num_thread=3
     try:
@@ -34,7 +34,7 @@ def main():
         if not input_data: return
         dati_csharp = json.loads(input_data)
         
-        
+        # percorso per salvare i dati
         cartella_script = os.path.dirname(os.path.abspath(__file__))
         percorso_file = os.path.join(cartella_script, "sessione_spedizione.json")
     
@@ -57,9 +57,11 @@ def main():
             lista_totale.extend(future_io.result())
             lista_totale.extend(future_pacco.result())
 
-        # 3. Invio al C++ (resta invariato)
+        # 3. Invio al C++ 
         json_finale = json.dumps(lista_totale)
 
+
+      # percorso universale sia per mac che windows
         cartella_corrente = os.path.dirname(os.path.abspath(__file__))
         cartella_base = os.path.dirname(cartella_corrente)
 
@@ -78,6 +80,7 @@ def main():
         else:
             flags = 0
 
+        # processo
         processo_cpp = subprocess.Popen(
             [percorso_cpp],
             stdin=subprocess.PIPE,
@@ -86,7 +89,8 @@ def main():
             encoding='utf-8',
             creationflags=flags
         )
-
+        # risposta dal c++
+    
         risposta_dal_cpp, errori = processo_cpp.communicate(input=json_finale)
 
         if risposta_dal_cpp:
