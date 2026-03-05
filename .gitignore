@@ -365,3 +365,11 @@ FodyWeavers.xsd
 # Ignora l'eseguibile C++ generato dal Makefile
 Modulo_C++/ordinatore_offerte.exe
 Modulo_C++/ordinatore_offerte
+
+# Ignora l'ambiente virtuale Python
+Module_Phyton/env/
+Module_Phyton/venv/
+
+# Ignora i file oggetto intermedi del C++
+Modulo_C++/*.o
+Modulo_C++/*.obj
