@@ -1,7 +1,10 @@
 ----- GUIDA INSTALLAZIONE PROGETTO SHIPFINDER -----
 
 PREREQUISITI:
+
 	1) Avere installato Python
+    2) utilizzare windows
+    3) connesione ad internet
 
 INSTALLAZIONE:
 	1) Andare nel percorso file ProgettoADL/modulo_C#/Module_Python ed eseguire
