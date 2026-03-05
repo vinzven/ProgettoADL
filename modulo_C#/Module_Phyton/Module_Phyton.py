@@ -68,6 +68,16 @@ def main():
         
         percorso_cpp = os.path.join(cartella_base, "Modulo_C++","ordinatore_offerte.exe")
         
+        if not os.path.exists(percorso_cpp):
+    # Inviamo un messaggio di errore strutturato che il C# possa leggere
+            errore = (
+        "\nERRORE CRITICO: Compilazione C++ mancante!\n"
+        "Il file 'ordinatore_offerte.exe' non è stato trovato.\n"
+        "Per favore, esegui il comando 'make' nella cartella 'Modulo_C++' prima di continuare."
+        )
+            print(errore)
+            sys.exit(1)
+        
 
         # processo
         processo_cpp = subprocess.Popen(

@@ -293,13 +293,27 @@ namespace ProgettoGUI
                 string percorsoScript = Path.Combine(cartellaPython, "Acquisto.py");
 
                 ProcessStartInfo start = new ProcessStartInfo();
-                {
+                
                     start.FileName = percorsoInterprete;
                     start.Arguments = $"\"{percorsoScript}\" \"{url}\" \"{prezzo}\" \"{corriere}\"";
                     start.UseShellExecute = false;
                     start.RedirectStandardInput = false;
                     start.RedirectStandardOutput = false;
                     start.CreateNoWindow = true;
+
+
+                if (!File.Exists(percorsoInterprete))
+                {
+                    MessageBox.Show($@"Errore: Ambiente virtuale non trovato!  assicurati di aver eseguito il file .bat per creare la cartella:
+                                {percorsoInterprete}", "Ambiente Mancante", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return; // Interrompe l'esecuzione prima del crash
+                }
+
+                if (!File.Exists(percorsoScript))
+                {
+                    MessageBox.Show($"Errore: Lo script Python non è presente in: {percorsoScript}",
+                                    "Script Mancante", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
                 }
 
                 //LoadingForm f1 = new LoadingForm("Elaborazione in corso attendere...");
@@ -696,6 +710,24 @@ Package info:
                             start.RedirectStandardInput = true;
                             start.RedirectStandardOutput = true;
                             start.CreateNoWindow = true;
+
+
+                            //controllo ambiente virtuale e script Python
+
+                            if (!File.Exists(percorsoInterprete))
+                            {
+                                MessageBox.Show($@"Errore: Ambiente virtuale non trovato!  assicurati di aver eseguito il file .bat per creare la cartella:
+                                {percorsoInterprete}", "Ambiente Mancante", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                return; // Interrompe l'esecuzione prima del crash
+                            }
+
+                            if (!File.Exists(percorsoScript))
+                            {
+                                MessageBox.Show($"Errore: Lo script Python non è presente in: {percorsoScript}",
+                                                "Script Mancante", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                return;
+                            }
+
 
                             // Mostriamo un form di caricamento mentre aspettiamo la risposta dallo script Python
                             LoadingForm f1 = new LoadingForm("Elaborazione in corso attendere...");
