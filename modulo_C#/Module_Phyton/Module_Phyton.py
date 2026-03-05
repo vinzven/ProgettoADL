@@ -8,7 +8,7 @@ from scrapers.paccofacile import cercaPaccoFacile
 import os
 import subprocess
 
-#  funzione  per ogni thread
+#  funzione per ogni thread
 def esegui_task(nome_scraper, funzione_scraper, dati):
     print(f"Avvio {nome_scraper}...")
     try:
