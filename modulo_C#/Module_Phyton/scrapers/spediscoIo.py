@@ -1,5 +1,4 @@
 import sys
-from playwright.sync_api import sync_playwright
 
 
 # funzione per calcolare i giorni lavorativi
