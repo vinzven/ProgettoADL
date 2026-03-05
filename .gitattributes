@@ -61,4 +61,4 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
-Modulo_C++/include/* linguist-vendored
+"modulo_C#/Modulo_C++/include/*" linguist-vendored
