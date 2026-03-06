@@ -20,13 +20,12 @@ INSTALLAZIONE:
 
     $ pacman -Syu
 
-	$ pacman -S mingw-w64-x86_64-toolchain
+    $ pacman -S mingw-w64-x86_64-toolchain
 
     $ pacman -S make
 
-    -----verificare una volta completato che si trovi nel PATH---
 
-	----Spostarsi nella cartella ProgettoADL/modulo_C#/Modulo_C++ ed eseguire----
+    ----Spostarsi nella cartella ProgettoADL/modulo_C#/Modulo_C++ sempre su MSYS2 MinGW64 ed eseguire----
 
 	$ make 
 	
@@ -42,7 +41,7 @@ INSTALLAZIONE:
 
 	----oppure:--
 
-    $ mingw32-make test
+        $ mingw32-make test
 
         
 ESECUZIONE (consigliata):
@@ -51,9 +50,10 @@ ESECUZIONE (consigliata):
 
 
 ---ALTERNATIVA--------
+aprire visual studio code 
 Installare l'estensione "C# Dev Kit" 
 Assicurarsi di avere installato l'SDK di .NET da https://dotnet.microsoft.com/en-us/download
-aprire con l'IDE Visual Studio code la cartella ProgettoADL 
+chiudere e riaprire con l'IDE Visual Studio code la cartella ProgettoADL 
 aprire il terminale e lanciare da ProgettoADL dotnet run --project "modulo_C#/ProgettoGUI.csproj"
 Se tutto corretto, si dovrebbe avviare il form principale (GUI)
 

@@ -584,11 +584,12 @@ namespace ProgettoGUI
             string capDestinatario = comboBoxCAPDestinatario.Text;
 
 
-
             string peso = textBox1.Text;
             string lunghezza = textBox2.Text;
             string larghezza = textBox3.Text;
             string altezza = textBox4.Text;
+
+            
 
             // Verifica che nessuna delle selezioni sia null e che i campi di testo non siano vuoti o solo spazi
             if (comboBox1Item != null && comboBox2Item != null && comboBoxCittaMittenteItem != null &&
@@ -596,6 +597,14 @@ namespace ProgettoGUI
                 !string.IsNullOrWhiteSpace(capMittente) && !string.IsNullOrWhiteSpace(capDestinatario) && !string.IsNullOrWhiteSpace(peso) && !string.IsNullOrWhiteSpace(lunghezza) &&
                 !string.IsNullOrWhiteSpace(larghezza) && !string.IsNullOrWhiteSpace(altezza))
             {
+
+                if (capMittente == "Nessun CAP trovato" || capDestinatario == "Nessun CAP trovato")
+                {
+                    MessageBox.Show("Impossibile procedere: uno dei codici postali (CAP) non è stato trovato.",
+                                    "CAP Mancante", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
 
                 // Estraiamo le stringhe dalle selezioni
                 string nazioneMittente = comboBox1Item.ToString();
@@ -635,7 +644,7 @@ namespace ProgettoGUI
 
 
                     // Se tutte le selezioni sono valide (non -1) 
-                    if (valoreNazioneMittente != -1 && valoreNazioneDestinatario != -1 && valoreCittaMittente != -1 && valoreCittaDestinatario != -1 && valoreCapMittente != 1 && valoreCapDestinatario != -1)
+                    if (valoreNazioneMittente != -1 && valoreNazioneDestinatario != -1 && valoreCittaMittente != -1 && valoreCittaDestinatario != -1 && valoreCapMittente != -1 && valoreCapDestinatario != -1)
                     {
 
 
@@ -772,9 +781,19 @@ Package info:
 
                                         if (datiFinali != null)
                                         {
-                                            // Apriamo il form dei risultati passando i dati deserializzati
-                                            FormSpedizioni f = new FormSpedizioni(datiFinali);
-                                            f.ShowDialog();
+                                            bool haPrezzi = datiFinali.ordinate_per_prezzo != null && datiFinali.ordinate_per_prezzo.Count > 0;
+                                            bool haTempi = datiFinali.ordinate_per_tempo != null && datiFinali.ordinate_per_tempo.Count > 0;
+
+                                            if (haPrezzi || haTempi)
+                                            {
+                                                FormSpedizioni f = new FormSpedizioni(datiFinali);
+                                                f.ShowDialog();
+                                            }
+
+                                            else
+                                            {
+                                                MessageBox.Show("Nessun preventivo trovato per questa tratta o peso.", "Nessun Risultato", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                            }
 
                                         }
                                     }
@@ -792,10 +811,8 @@ Package info:
 
                             else
                             {
-                                MessageBox.Show("Il modulo C++ non ha restituito dati!", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                MessageBox.Show("Il modulo python non ha restituito dati!", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
-
-
 
                         }
 
