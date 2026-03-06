@@ -598,7 +598,7 @@ namespace ProgettoGUI
                 !string.IsNullOrWhiteSpace(larghezza) && !string.IsNullOrWhiteSpace(altezza))
             {
 
-                if (capMittente == "Nessun CAP trovato" || capDestinatario == "Nessun CAP trovato")
+                if (capMittente == "Nessun CAP trovato." || capDestinatario == "Nessun CAP trovato.")
                 {
                     MessageBox.Show("Impossibile procedere: uno dei codici postali (CAP) non è stato trovato.",
                                     "CAP Mancante", MessageBoxButtons.OK, MessageBoxIcon.Warning);
