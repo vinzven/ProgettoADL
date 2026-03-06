@@ -373,3 +373,4 @@ Module_Phyton/venv/
 # Ignora i file oggetto intermedi del C++
 Modulo_C++/*.o
 Modulo_C++/*.obj
+/modulo_C#/Modulo_C++/ordinatore_offerte.exe
